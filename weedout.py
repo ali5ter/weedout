@@ -15,9 +15,17 @@
 from __future__ import print_function
 
 import os
-from time import sleep
+from os import listdir
+from os import getenv
 import random
-import RPi.GPIO as GPIO
+import subprocess
+from time import sleep
+
+# Check the OS so we can test outside of a RPi
+if os.uname()[1] == 'raspberrypi':
+    WO_RUUNING_ON_PI = True
+else:
+    WO_RUUNING_ON_PI = False
 
 # Hardware configuration:
 #
@@ -35,35 +43,30 @@ import RPi.GPIO as GPIO
 # or GND when 3.3v when open. When GPIO pin is set up as an Input, we check if
 # False (or GPIO.LOW) to detect if push switch pressed.
 #
-GPIO.setmode(GPIO.BCM)  ## Use GPIO numbering not pin numbers
-GPIO.setup(23, GPIO.IN) ## Enable GPIO pin 23 as a regular input
+if WO_RUUNING_ON_PI:
+    import RPi.GPIO as GPIO
+    GPIO.setmode(GPIO.BCM)  ## Use GPIO numbering not pin numbers
+    GPIO.setup(23, GPIO.IN) ## Enable GPIO pin 23 as a regular input
 
-WO_AUDIO_DIR = '~/weedo/audio'
-WO_CYCLE_TIME = 0.1     ## How often to check for input state of GPIO pin
+# The directory location of the audio files
+WO_AUDIO_DIR = getenv("WO_AUDIO_DIR") or './audio'
+# How often to check for input state of GPIO pin
+WO_CYCLE_TIME = getenv("WO_CYCLE_TIME") or 0.1
 
-_DEBUG = False
 
-
-def getAudioFileNames()
+def get_all_audio_filenames():
     ''' Retrieve a list of all audio files found in the audio file store '''
-    files = [ f for f in listdir('.') if f[-4:] == '.m4a' ]
-    if not (len(mp3_files) > 0):
-        print("No audio files found in "+ WO_AUDIO_DIR)
-    return files
+    return [ f for f in listdir(WO_AUDIO_DIR) if f[-4:] == '.m4a' ]
 
 
-def getAudioFileName()
+def get_audio_filename():
     ''' Randomly select audio file from audio file store '''
-    file = random.choice(getAudioFileNames())
-    if file:
-        print("Selected audio file: "+ file)
-        return file
-    else:
-        return false
+    return random.choice(get_all_audio_filenames())
 
 
 # Loop to check for state of GPIO pin
 
+print("\n")
 print(" /$$      /$$                           /$$        /$$$$$$              /$$    ")
 print("| $$  /$ | $$                          | $$       /$$__  $$            | $$    ")
 print("| $$ /$$$| $$  /$$$$$$   /$$$$$$   /$$$$$$$      | $$  \ $$ /$$   /$$ /$$$$$$  ")
@@ -72,19 +75,31 @@ print("| $$$$_  $$$$| $$$$$$$$| $$$$$$$$| $$  | $$      | $$  | $$| $$  | $$  | 
 print("| $$$/ \  $$$| $$_____/| $$_____/| $$  | $$      | $$  | $$| $$  | $$  | $$ /$$")
 print("| $$/   \  $$|  $$$$$$$|  $$$$$$$|  $$$$$$$      |  $$$$$$/|  $$$$$$/  |  $$$$/")
 print("|__/     \__/ \_______/ \_______/ \_______/       \______/  \______/    \___/  ")
+FILES = get_all_audio_filenames()
+if not FILES:
+    print("\nUnable to find any audio files in: "+ WO_AUDIO_DIR)
+    exit()
 print("\nFound the following audio files to work with...")
-print(getAudioFileNames())
+print(FILES)
 print("\nListening...")
 
 try:
     while True:
-    if (GPIO.input(23) == False):
-        print("Button pressed")
-        subprocess.call(['killall', 'cvlc'])    ## stop any playing audio
-        os.system('cvlc '+ WO_AUDIO_DIR +'/'+ getAudioFileName() +'&')  ## play audio
+        if WO_RUUNING_ON_PI:
 
-    sleep(WO_CYCLE_TIME)
+            if GPIO.input(23) == False:
+                print("Button pressed")
+                subprocess.call(['killall', 'cvlc'])    ## stop any playing audio
+                os.system('cvlc '+ WO_AUDIO_DIR +'/'+ get_audio_filename() +'&')  ## play audio
+
+        else:
+            if random.randint(0, 100) == 42:    ## simulate change in GPIO pin state
+                ## Specifically for macOS..
+                os.system('afplay '+ WO_AUDIO_DIR +'/'+ get_audio_filename() +'&')
+
+        sleep(WO_CYCLE_TIME)
 
 except KeyboardInterrupt:
     print("\nStopping")
-    GPIO.cleanup()
+    if WO_RUUNING_ON_PI:
+        GPIO.cleanup()
