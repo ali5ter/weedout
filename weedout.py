@@ -4,19 +4,12 @@
 # Script to support Wen-Hao Tien's art installation, Weed Out.
 # @author Alister Lewis-Bowen <alister@lewis-bowen.org>
 
-# Requirements:
-#
-# * Wen moves m4a files from her iphone to RPi
-# * To play m4a audio files:
-#     sudo apt-get install vlc-nox
-#     cvlc /pat/to/your/file.m4a
-#
-
 from __future__ import print_function
 
 import os
 from os import listdir
 from os import getenv
+import datetime
 import random
 import subprocess
 from time import sleep
@@ -48,20 +41,51 @@ if WO_RUUNING_ON_PI:
     GPIO.setmode(GPIO.BCM)  ## Use GPIO numbering not pin numbers
     GPIO.setup(23, GPIO.IN) ## Enable GPIO pin 23 as a regular input
 
+# * Wen moves m4a files from her iphone to RPi
+# * To play m4a audio files:
+#     sudo apt-get install vlc-nox
+#     cvlc /pat/to/your/file.m4a
+#
+
 # The directory location of the audio files
 WO_AUDIO_DIR = getenv("WO_AUDIO_DIR") or './audio'
 # How often to check for input state of GPIO pin
 WO_CYCLE_TIME = getenv("WO_CYCLE_TIME") or 0.1
+# The type of audio file to play
+WO_AUDIO_TYPE = 'm4a'
 
 
 def get_all_audio_filenames():
     ''' Retrieve a list of all audio files found in the audio file store '''
-    return [ f for f in listdir(WO_AUDIO_DIR) if f[-4:] == '.m4a' ]
+    return [ f for f in listdir(WO_AUDIO_DIR) if f[-4:] == '.'+ WO_AUDIO_TYPE ]
 
 
 def get_audio_filename():
     ''' Randomly select audio file from audio file store '''
+    audiofiles = get_all_audio_filenames()
+    if not audiofiles:
+        return False
     return random.choice(get_all_audio_filenames())
+
+
+def log_input_state():
+    ''' Print log of input state '''
+    print('[{:%Y-%m-%d %H:%M:%S}] '.format(datetime.datetime.now()), end='')
+    print('Button pressed. ', end='')
+
+
+def play_random_audio_file():
+    ''' Play an audio file randomly selected from file store'''
+    audiofile = get_audio_filename()
+    if not audiofile:
+        print('Unable to select audio file to play.')
+        return False
+    print("Playing audio file "+ audiofile)
+    if WO_RUUNING_ON_PI:
+        os.system('cvlc '+ WO_AUDIO_DIR +'/'+ audiofile +'&')
+    else:
+        ## Specifically for macOS..
+        os.system('afplay '+ WO_AUDIO_DIR +'/'+ audiofile +'&')
 
 
 # Loop to check for state of GPIO pin
@@ -88,14 +112,15 @@ try:
         if WO_RUUNING_ON_PI:
 
             if GPIO.input(23) == False:
-                print("Button pressed")
-                subprocess.call(['killall', 'cvlc'])    ## stop any playing audio
-                os.system('cvlc '+ WO_AUDIO_DIR +'/'+ get_audio_filename() +'&')  ## play audio
+                log_input_state()
+                # subprocess.call(['killall', 'cvlc'])    ## stop any playing audio
+                play_random_audio_file()
 
-        else:
-            if random.randint(0, 100) == 42:    ## simulate change in GPIO pin state
-                ## Specifically for macOS..
-                os.system('afplay '+ WO_AUDIO_DIR +'/'+ get_audio_filename() +'&')
+        else:   ## simulate change in GPIO pin state
+            if random.randint(0, 100) == 42:
+                log_input_state()
+                subprocess.call(['killall', 'afplay'])    ## stop any playing audio
+                play_random_audio_file()
 
         sleep(WO_CYCLE_TIME)
 
