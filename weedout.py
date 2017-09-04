@@ -49,10 +49,12 @@ if WO_RUUNING_ON_PI:
 
 # The directory location of the audio files
 WO_AUDIO_DIR = getenv("WO_AUDIO_DIR") or './audio'
+# The type of audio file to play
+WO_AUDIO_TYPE = getenv("WO_AUDIO_TYPE") or 'm4a'
 # How often to check for input state of GPIO pin
 WO_CYCLE_TIME = getenv("WO_CYCLE_TIME") or 0.1
-# The type of audio file to play
-WO_AUDIO_TYPE = 'm4a'
+# Play single audio file at a time
+WO_SINGLE_PLAY = getenv("WO_SINGLE_PLAY") or False
 
 
 def get_all_audio_filenames():
@@ -82,9 +84,12 @@ def play_random_audio_file():
         return False
     print("Playing audio file "+ audiofile)
     if WO_RUUNING_ON_PI:
+        if WO_SINGLE_PLAY:
+            subprocess.call(['killall', 'cvlc'])
         os.system('cvlc '+ WO_AUDIO_DIR +'/'+ audiofile +'&')
     else:
-        ## Specifically for macOS..
+        if WO_SINGLE_PLAY:
+            subprocess.call(['killall', 'afplay'])
         os.system('afplay '+ WO_AUDIO_DIR +'/'+ audiofile +'&')
 
 
@@ -113,13 +118,11 @@ try:
 
             if GPIO.input(23) == False:
                 log_input_state()
-                # subprocess.call(['killall', 'cvlc'])    ## stop any playing audio
                 play_random_audio_file()
 
         else:   ## simulate change in GPIO pin state
             if random.randint(0, 100) == 42:
                 log_input_state()
-                subprocess.call(['killall', 'afplay'])    ## stop any playing audio
                 play_random_audio_file()
 
         sleep(WO_CYCLE_TIME)
