@@ -10,28 +10,29 @@
 |__/     \__/ \_______/ \_______/ \_______/       \______/  \______/    \___/  
 ```
 
-# weedout
+# weedout RPi script
 RPi script to support Wen-Hao Tien's art installation, Weed Out.
 
 The script simply plays an audio file based on the state of a GPIO pin input.
 
 ## Process
 Wen-Hao ssh's m4a files from her iPhone to RPi. To play m4a audio files:
-* sudo apt-get install vlc-nox
-* cvlc /pat/to/your/file.m4a
+
+    sudo apt-get install vlc-nox
+    cvlc /pat/to/your/file.m4a
 
 ## Hardware configuration
 The installation will feature a mementory switch connected to the RPi using the following circuit.
 
-  3.3v -------.
-              |
-             [ ] 10K pull up resistor
-              |
-              |---------- GPIO input pin
-              |
-               \ push switch
-              |
-  GND --------'
+    3.3v -------.
+                |
+               [ ] 10K pull up resistor
+                |
+                |---------- GPIO input pin
+                |
+                 \ push switch
+                |
+    GND --------'
 
 Pull up resistor used to make sure GPIO input pin is either 0v when pressed or GND when 3.3v when open. When GPIO pin is set up as an Input, we check if False (or GPIO.LOW) to detect if push switch pressed.
 
@@ -45,11 +46,11 @@ While the script is meant to run on a RPi, it will also run on macOS but simulat
 ## Configuration options
 The configuration can be controlled using environment variables.
 
-`WO_AUDIO_DIR`: directory location of the audio files. Defaults to `./audio`
-`WO_AUDIO_TYPE`: type of audio file to play. Defaults to `m4a`
-`WO_CYCLE_TIME`: how often to check for input state of GPIO pin. Defaults to `0.1` seconds
-`WO_SINGLE_PLAY`: play a single audio file at a time. Defaults to `False`
-`WO_GPIO_PIN`: the GPIO pin number to check the input state of. Defaults to `23`
+* `WO_AUDIO_DIR`: directory location of the audio files. Defaults to `./audio`
+* `WO_AUDIO_TYPE`: type of audio file to play. Defaults to `m4a`
+* `WO_CYCLE_TIME`: how often to check for input state of GPIO pin. Defaults to `0.1` seconds
+* `WO_SINGLE_PLAY`: play a single audio file at a time. Defaults to `False`
+* `WO_GPIO_PIN`: the GPIO pin number to check the input state of. Defaults to `23`
 
 ### How to change what directory to use for audio files
     export WO_AUDIO_DIR='/path/to/audio_dir'
