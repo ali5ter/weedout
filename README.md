@@ -22,11 +22,11 @@ Wen-Hao ssh's m4a files from her iPhone to RPi. To play m4a audio files:
     cvlc /pat/to/your/file.m4a
 
 Part of the installation includes a momentory switch which can be pressed by a
-viewer who will then hear an one of the audio files Wen-Hao has created.
+viewer who will then hear one of the audio files Wen-Hao has created.
 
 ## Hardware configuration
-The installation will feature a mementory switch connected to the RPi using the
-following circuit.
+An RPi is used to run this script and store the audio files. The circuit used
+connect the switch to the pins of the RPi follows.
 
     3.3v -------.
                 |
@@ -50,8 +50,8 @@ an audio file hasn't finished playing before another is started, they will play
 simultaeously.
 
 While the script is meant to run on a RPi, it will also run on macOS but
-simulate the GPIO input state using a random number. This way the code function
-can be tested outside of an RPi.
+simulate the GPIO input state using a random number. Test audio files are
+included. This way the code function can be tested outside of an RPi.
 
 ## Configuration options
 The configuration can be controlled using environment variables.
