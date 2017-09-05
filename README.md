@@ -21,8 +21,12 @@ Wen-Hao ssh's m4a files from her iPhone to RPi. To play m4a audio files:
     sudo apt-get install vlc-nox
     cvlc /pat/to/your/file.m4a
 
+Part of the installation includes a momentory switch which can be pressed by a
+viewer who will then hear an one of the audio files Wen-Hao has created.
+
 ## Hardware configuration
-The installation will feature a mementory switch connected to the RPi using the following circuit.
+The installation will feature a mementory switch connected to the RPi using the
+following circuit.
 
     3.3v -------.
                 |
@@ -34,14 +38,20 @@ The installation will feature a mementory switch connected to the RPi using the 
                 |
     GND --------'
 
-Pull up resistor used to make sure GPIO input pin is either 0v when pressed or GND when 3.3v when open. When GPIO pin is set up as an Input, we check if False (or GPIO.LOW) to detect if push switch pressed.
+Pull up resistor used to make sure GPIO input pin is either 0v when pressed or
+GND when 3.3v when open. When GPIO pin is set up as an Input, we check if False
+(or GPIO.LOW) to detect if push switch pressed.
 
 ## Running the script
 Just run the `weedout.py` script.
 
-By default, any m4a files found in the `./audio` directory will be played. If an audio file hasn't finished playing before another is started, they will play simultaeously.
+By default, any m4a files found in the `./audio` directory will be played. If
+an audio file hasn't finished playing before another is started, they will play
+simultaeously.
 
-While the script is meant to run on a RPi, it will also run on macOS but simulate the GPIO input state using a random number. This way the code function can be tested outside of an RPi.
+While the script is meant to run on a RPi, it will also run on macOS but
+simulate the GPIO input state using a random number. This way the code function
+can be tested outside of an RPi.
 
 ## Configuration options
 The configuration can be controlled using environment variables.
