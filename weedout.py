@@ -20,32 +20,10 @@ if os.uname()[1] == 'raspberrypi':
 else:
     WO_RUUNING_ON_PI = False
 
-# Hardware configuration:
-#
-#  3.3v -------.
-#              |
-#             [ ] 10K pull up resistor
-#              |
-#              |---------- GPIO input pin
-#              |
-#               \ push switch
-#              |
-#  GND --------'
-#
-# Pull up resistor used to make sure GPIO input pin is either 0v when pressed
-# or GND when 3.3v when open. When GPIO pin is set up as an Input, we check if
-# False (or GPIO.LOW) to detect if push switch pressed.
-#
 if WO_RUUNING_ON_PI:
     import RPi.GPIO as GPIO
     GPIO.setmode(GPIO.BCM)  ## Use GPIO numbering not pin numbers
     GPIO.setup(23, GPIO.IN) ## Enable GPIO pin 23 as a regular input
-
-# * Wen moves m4a files from her iphone to RPi
-# * To play m4a audio files:
-#     sudo apt-get install vlc-nox
-#     cvlc /pat/to/your/file.m4a
-#
 
 # The directory location of the audio files
 WO_AUDIO_DIR = getenv("WO_AUDIO_DIR") or './audio'
@@ -55,6 +33,8 @@ WO_AUDIO_TYPE = getenv("WO_AUDIO_TYPE") or 'm4a'
 WO_CYCLE_TIME = getenv("WO_CYCLE_TIME") or 0.1
 # Play single audio file at a time
 WO_SINGLE_PLAY = getenv("WO_SINGLE_PLAY") or False
+# GPIO pin number to check the input state of
+WO_GPIO_PIN = 23
 
 
 def get_all_audio_filenames():
@@ -72,7 +52,7 @@ def get_audio_filename():
 
 def log_input_state():
     ''' Print log of input state '''
-    print('[{:%Y-%m-%d %H:%M:%S}] '.format(datetime.datetime.now()), end='')
+    print('{:%Y-%m-%d %H:%M:%S} | '.format(datetime.datetime.now()), end='')
     print('Button pressed. ', end='')
 
 
@@ -116,7 +96,7 @@ try:
     while True:
         if WO_RUUNING_ON_PI:
 
-            if GPIO.input(23) == False:
+            if GPIO.input(WO_GPIO_PIN) == False:
                 log_input_state()
                 play_random_audio_file()
 
