@@ -1,8 +1,11 @@
 #!/usr/bin/env python
-# @file weedout.py
-# Loop to detect switch state on GPIO and play randomly selected audo file
-# Script to support Wen-Hao Tien's art installation, Weed Out.
-# @author Alister Lewis-Bowen <alister@lewis-bowen.org>
+# -*- coding: utf-8 -*-
+"""Weed Out: RPi script to support Wen-Hao Tien's art installation
+
+Loop to detect switch state on GPIO pin and play randomly selected audo file
+
+Author: Alister Lewis-Bowen <alister@lewis-bowen.org>
+"""
 
 from __future__ import print_function
 
@@ -14,17 +17,6 @@ import random
 import subprocess
 from time import sleep
 
-# Check the OS so we can test outside of a RPi
-if os.uname()[1] == 'raspberrypi':
-    WO_RUUNING_ON_PI = True
-else:
-    WO_RUUNING_ON_PI = False
-
-if WO_RUUNING_ON_PI:
-    import RPi.GPIO as GPIO
-    GPIO.setmode(GPIO.BCM)  ## Use GPIO numbering not pin numbers
-    GPIO.setup(23, GPIO.IN) ## Enable GPIO pin 23 as a regular input
-
 # The directory location of the audio files
 WO_AUDIO_DIR = getenv("WO_AUDIO_DIR") or './audio'
 # The type of audio file to play
@@ -35,6 +27,18 @@ WO_CYCLE_TIME = getenv("WO_CYCLE_TIME") or 0.1
 WO_SINGLE_PLAY = getenv("WO_SINGLE_PLAY") or False
 # GPIO pin number to check the input state of
 WO_GPIO_PIN = 23
+
+# Check the OS so we can test outside of a RPi
+if os.uname()[1] == 'raspberrypi':
+    WO_RUNNING_ON_RPI = True
+else:
+    WO_RUNNING_ON_RPI = False
+
+## Enable RPi hardware
+if WO_RUNNING_ON_RPI:
+    import RPi.GPIO as GPIO
+    GPIO.setmode(GPIO.BCM)              ## Use GPIO numbering not pin numbers
+    GPIO.setup(WO_GPIO_PIN, GPIO.IN)    ## Enable GPIO pin as a regular input
 
 
 def get_all_audio_filenames():
@@ -50,10 +54,10 @@ def get_audio_filename():
     return random.choice(get_all_audio_filenames())
 
 
-def log_input_state():
+def log(message):
     ''' Print log of input state '''
     print('{:%Y-%m-%d %H:%M:%S} | '.format(datetime.datetime.now()), end='')
-    print('Button pressed. ', end='')
+    print(message, end='')
 
 
 def play_random_audio_file():
@@ -63,7 +67,7 @@ def play_random_audio_file():
         print('Unable to select audio file to play.')
         return False
     print("Playing audio file "+ audiofile)
-    if WO_RUUNING_ON_PI:
+    if WO_RUNNING_ON_RPI:
         if WO_SINGLE_PLAY:
             subprocess.call(['killall', 'cvlc'])
         os.system('cvlc '+ WO_AUDIO_DIR +'/'+ audiofile +'&')
@@ -72,8 +76,6 @@ def play_random_audio_file():
             subprocess.call(['killall', 'afplay'])
         os.system('afplay '+ WO_AUDIO_DIR +'/'+ audiofile +'&')
 
-
-# Loop to check for state of GPIO pin
 
 print("\n")
 print(" /$$      /$$                           /$$        /$$$$$$              /$$    ")
@@ -90,29 +92,31 @@ if not FILES:
     exit()
 print("\nFound the following audio files to work with...")
 print(FILES)
-print("\nListening...")
+print("\nWaiting for input...")
 
+# Loop to check for state of GPIO pin
 try:
-    pressing = False
+    _IS_PRESSED = False  ## used to detect first detection of pressed button
 
     while True:
-        if WO_RUUNING_ON_PI:
+        if WO_RUNNING_ON_RPI:
 
-            if GPIO.input(WO_GPIO_PIN) == False and pressing == False:
-                log_input_state()
+            if not GPIO.input(WO_GPIO_PIN) and not _IS_PRESSED:
+                log('Button pressed. ')
                 play_random_audio_file()
-		pressing = True
-	    else:
-                pressing = False
+                _IS_PRESSED = True
+            else:
+                log('Button released. ')
+                _IS_PRESSED = False  ## button released
 
         else:   ## simulate change in GPIO pin state
             if random.randint(0, 100) == 42:
-                log_input_state()
+                log('Simlated state change. ')
                 play_random_audio_file()
 
         sleep(WO_CYCLE_TIME)
 
 except KeyboardInterrupt:
     print("\nStopping")
-    if WO_RUUNING_ON_PI:
+    if WO_RUNNING_ON_RPI:
         GPIO.cleanup()
