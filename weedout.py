@@ -93,12 +93,17 @@ print(FILES)
 print("\nListening...")
 
 try:
+    pressing = False
+
     while True:
         if WO_RUUNING_ON_PI:
 
-            if GPIO.input(WO_GPIO_PIN) == False:
+            if GPIO.input(WO_GPIO_PIN) == False and pressing == False:
                 log_input_state()
                 play_random_audio_file()
+		pressing = True
+	    else:
+                pressing = False
 
         else:   ## simulate change in GPIO pin state
             if random.randint(0, 100) == 42:
