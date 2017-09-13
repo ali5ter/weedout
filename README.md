@@ -61,6 +61,14 @@ or to keep it running after logging out, use
 
     nohup python ./weedout.py &
 
+To run it at start up edit the crontab, using
+
+    sudo crontab -e
+
+and add the line
+
+    @reboot python /path/to/your/weedout.py &
+
 By default, any m4a files found in the `./audio` directory will be played. If
 an audio file hasn't finished playing before another is started, they will play
 simultaeously.
