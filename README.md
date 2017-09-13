@@ -11,7 +11,8 @@
 ```
 
 # weedout RPi script
-An RPi script to support Wen-Hao Tien's art installation, [Weed Out](https://www.wenhaotien.com/weed-out/).
+An RPi script to support Wen-Hao Tien's art installation, 
+[Weed Out](https://www.wenhaotien.com/weed-out/).
 
 The script simply plays an audio file based on the state of a GPIO pin input.
 
@@ -37,7 +38,8 @@ To play m4a audio files:
     cvlc /pat/to/your/file.m4a
 
 ## Hardware configuration
-An RPi is used to run this script. The circuit used to connect the switch to the RPi follows.
+An RPi is used to run this script. The circuit used to connect the switch to 
+the RPi follows.
 
     3.3v -------.
                 |
@@ -49,7 +51,9 @@ An RPi is used to run this script. The circuit used to connect the switch to the
                 |
     GND --------'
 
-The 'pull up' resistor ensures the voltage on the GPIO pin is not floating: It will wither be 0v (GND) when pressed or 3.3v when open. The GPIO pin is initialized as an Input so the script can check if it is False (or GPIO.LOW)
+The 'pull up' resistor ensures the voltage on the GPIO pin is not floating: 
+It will wither be 0v (GND) when pressed or 3.3v when open. The GPIO pin is 
+initialized as an Input so the script can check if it is False (or GPIO.LOW)
 to detect if push switch pressed.
 
 ## Running the script
@@ -69,6 +73,9 @@ and add the line
 
     @reboot python /path/to/your/weedout.py &
 
+To help identify when the script starts, especially in this last use case, a 
+start-up sound is played.
+
 By default, any m4a files found in the `./audio` directory will be played. If
 an audio file hasn't finished playing before another is started, they will play
 simultaeously.
@@ -82,7 +89,8 @@ The configuration can be controlled using environment variables.
 
 * `WO_AUDIO_DIR`: directory location of the audio files. Defaults to `./audio`
 * `WO_AUDIO_TYPE`: type of audio file to play. Defaults to `m4a`
-* `WO_CYCLE_TIME`: how often to check for input state of GPIO pin. Defaults to `0.1` seconds
+* `WO_CYCLE_TIME`: how often to check for input state of GPIO pin. Defaults 
+to `0.1` seconds
 * `WO_SINGLE_PLAY`: play a single audio file at a time. Defaults to `False`
 * `WO_GPIO_PIN`: the GPIO pin number to check the input state of. Defaults to `23`
 
