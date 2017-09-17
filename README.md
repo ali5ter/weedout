@@ -65,13 +65,7 @@ or to keep it running after logging out, use
 
     nohup python ./weedout.py &
 
-To run it at start up edit the crontab, using
-
-    sudo crontab -e
-
-and add the line
-
-    @reboot python /path/to/your/weedout.py &
+To run it at start up: Add [a reboot line to crontab](https://www.raspberrypi.org/documentation/linux/usage/cron.md) or [invoke script from `/etc/rc.local`](https://www.raspberrypi.org/documentation/linux/usage/rc-local.md).
 
 To help identify when the script starts, especially in this last use case, a 
 start-up sound is played.
