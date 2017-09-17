@@ -18,7 +18,7 @@ import subprocess
 from time import sleep
 
 # The directory location of the audio files
-WO_AUDIO_DIR = getenv("WO_AUDIO_DIR") or './audio'
+WO_AUDIO_DIR = getenv("WO_AUDIO_DIR") or getenv("PWD") +'/audio'
 # The type of audio file to play
 WO_AUDIO_TYPE = getenv("WO_AUDIO_TYPE") or 'm4a'
 # How often to check for input state of GPIO pin
@@ -66,7 +66,7 @@ def play_audio_file(audiofile):
     if WO_RUNNING_ON_RPI:
         if WO_SINGLE_PLAY:
             subprocess.call(['killall', 'cvlc'])
-        os.system('cvlc '+ WO_AUDIO_DIR +'/'+ audiofile +'&')
+        os.system('cvlc '+ WO_AUDIO_DIR +'/'+ audiofile +' 2>/dev/null &')
     else:
         if WO_SINGLE_PLAY:
             subprocess.call(['killall', 'afplay'])
@@ -107,13 +107,15 @@ try:
     while True:
         if WO_RUNNING_ON_RPI:
 
-            if not GPIO.input(WO_GPIO_PIN) and not _IS_PRESSED:
-                log('Button pressed. ')
-                play_random_audio_file()
-                _IS_PRESSED = True
-            else:
-                log('Button released. ')
-                _IS_PRESSED = False  ## button released
+            if not GPIO.input(WO_GPIO_PIN):
+		if not _IS_PRESSED:
+                    log('Button pressed. ')
+                    play_random_audio_file()
+                    _IS_PRESSED = True
+                else:
+                    log('Button released. ')
+		    print('')
+                    _IS_PRESSED = False  ## button released
 
         else:   ## simulate change in GPIO pin state
             if random.randint(0, 100) == 42:
