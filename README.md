@@ -67,6 +67,12 @@ or to keep it running after logging out, use
 
 To run it at start up: Add [a reboot line to crontab](https://www.raspberrypi.org/documentation/linux/usage/cron.md) or [invoke script from `/etc/rc.local`](https://www.raspberrypi.org/documentation/linux/usage/rc-local.md).
 
+I found using either of these methods did not work and resorted to adding the following to `~/.bashrc`:
+
+    if (( $(ps aux | grep -c weedout) == 1 )); then
+        python ~/weedout.py &
+    fi
+
 To help identify when the script starts, especially in this last use case, a 
 start-up sound is played.
 
@@ -91,9 +97,6 @@ to `0.1` seconds
 ### How to change what directory to use for audio files
     export WO_AUDIO_DIR='/path/to/audio_dir'
     ./weedout.py
-
-## TODO
-* Investigate how to run script on RPi using [supervisor](http://supervisord.org/introduction.html)
 
 ## References
 * [Wen-Hao Tien website](https://www.wenhaotien.com/weed-out/)
