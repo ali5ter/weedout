@@ -56,6 +56,10 @@ It will wither be 0v (GND) when pressed or 3.3v when open. The GPIO pin is
 initialized as an Input so the script can check if it is False (or GPIO.LOW)
 to detect if push switch pressed.
 
+In retrospect, de-bouncing the switch using software was not as
+effective as expected. Using a [simple voltage smoothing circuit](http://raspberrypihobbyist.blogspot.com/2014/11/debouncing-gpio-input.html)
+would have been better.
+
 ## Running the script
 Just run the `weedout.py` script, like this
 
